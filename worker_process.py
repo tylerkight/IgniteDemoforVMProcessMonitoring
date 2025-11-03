@@ -2,6 +2,9 @@
 """
 Worker process that simulates various workloads and can inject failures.
 This process is designed to be monitored by OpenTelemetry Collector with Host Metrics Receiver.
+
+Note: This module uses module-level global variables (failure_state, memory_ballast, worker_name)
+for simplicity in this demo application. These are accessed by the HTTP handler and worker loop.
 """
 
 import argparse
@@ -13,7 +16,8 @@ from http.server import HTTPServer, BaseHTTPRequestHandler
 from threading import Thread
 import random
 
-# Global state for failure injection
+# Global state for failure injection and worker identity
+# These are initialized in main() and accessed by HealthHandler and main_worker_loop
 failure_state = {
     'cpu_spike': False,
     'memory_leak': False,
@@ -22,6 +26,7 @@ failure_state = {
 }
 
 memory_ballast = []
+worker_name = None  # Set in main() from command-line arguments
 
 
 class HealthHandler(BaseHTTPRequestHandler):
@@ -181,9 +186,6 @@ def main_worker_loop():
             if iteration % 10 == 0:
                 print(f"[{worker_name}] Normal operation (iteration {iteration})")
             normal_work()
-
-
-worker_name = None
 
 
 def main():

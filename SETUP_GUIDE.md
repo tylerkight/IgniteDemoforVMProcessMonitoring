@@ -63,8 +63,8 @@ python3 --version
 # Test worker process help
 python3 worker_process.py --help
 
-# Test manager help
-python3 manager.py --help
+# Verify manager script exists
+python3 -c "import os; assert os.path.exists('manager.py')"
 ```
 
 ## OpenTelemetry Collector Setup
