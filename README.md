@@ -40,11 +40,22 @@ pip install requests
 ```
 
 3. Start the demo application:
+
+**Option A: Quick Automated Demo**
+```bash
+python3 quick_demo.py
+```
+This runs through all failure scenarios automatically for a quick showcase.
+
+**Option B: Interactive Mode**
 ```bash
 python3 manager.py
 ```
+This provides an interactive CLI for manual control of the demo.
 
 ### Basic Usage
+
+**Interactive Mode:**
 
 Once started, the application runs in interactive mode:
 
@@ -67,6 +78,26 @@ Command> health
 # Exit the application
 Command> quit
 ```
+
+**Quick Demo Mode:**
+
+The quick demo automatically showcases all failure types:
+
+```bash
+# Run the automated demo
+python3 quick_demo.py
+```
+
+This will:
+1. Start all 3 worker processes
+2. Show initial healthy status
+3. Inject CPU spike into worker1
+4. Inject memory leak into worker2
+5. Inject I/O heavy load into worker3
+6. Display status after each injection
+7. Clean up and exit automatically
+
+Perfect for presentations and quick demonstrations!
 
 ## 🔧 Available Failure Types
 
