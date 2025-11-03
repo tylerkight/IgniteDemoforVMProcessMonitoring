@@ -1,0 +1,108 @@
+# OpenTelemetry Collector Configuration
+# This configuration enables process-level monitoring for the demo application
+
+receivers:
+  # Host Metrics Receiver collects system and process metrics
+  hostmetrics:
+    collection_interval: 10s
+    scrapers:
+      # Process metrics scraper
+      process:
+        # Include Python processes (our worker processes)
+        include:
+          names: ["python3", "python"]
+        # Collect all available process metrics
+        metrics:
+          process.cpu.time:
+            enabled: true
+          process.cpu.utilization:
+            enabled: true
+          process.memory.usage:
+            enabled: true
+          process.memory.virtual:
+            enabled: true
+          process.memory.physical:
+            enabled: true
+          process.disk.io:
+            enabled: true
+          process.disk.operations:
+            enabled: true
+          process.threads:
+            enabled: true
+      
+      # Optional: Collect system-level metrics for context
+      cpu:
+        metrics:
+          system.cpu.utilization:
+            enabled: true
+      
+      memory:
+        metrics:
+          system.memory.usage:
+            enabled: true
+          system.memory.utilization:
+            enabled: true
+      
+      disk:
+        metrics:
+          system.disk.io:
+            enabled: true
+
+processors:
+  # Batch processor groups metrics before export
+  batch:
+    timeout: 10s
+    send_batch_size: 1024
+  
+  # Resource processor adds additional attributes
+  resource:
+    attributes:
+      - key: service.name
+        value: process-monitoring-demo
+        action: upsert
+      - key: deployment.environment
+        value: demo
+        action: upsert
+  
+  # Filter processor to exclude unrelated processes (optional)
+  filter/processes:
+    metrics:
+      exclude:
+        match_type: regexp
+        resource_attributes:
+          - key: process.command
+            value: '^(?!.*worker_process\.py).*$'
+
+exporters:
+  # Azure Monitor exporter
+  azuremonitor:
+    # Replace with your Application Insights connection string
+    # Format: InstrumentationKey=xxxxx;IngestionEndpoint=https://xxxx.in.applicationinsights.azure.com/
+    connection_string: "${APPLICATIONINSIGHTS_CONNECTION_STRING}"
+  
+  # Debug exporter (optional, for testing)
+  logging:
+    verbosity: detailed
+    sampling_initial: 5
+    sampling_thereafter: 200
+
+service:
+  pipelines:
+    metrics:
+      receivers: [hostmetrics]
+      processors: [batch, resource]
+      exporters: [azuremonitor]
+    
+    # Optional: Debug pipeline to console
+    metrics/debug:
+      receivers: [hostmetrics]
+      processors: [batch]
+      exporters: [logging]
+
+  # Telemetry configuration
+  telemetry:
+    logs:
+      level: info
+    metrics:
+      level: detailed
+      address: localhost:8888
