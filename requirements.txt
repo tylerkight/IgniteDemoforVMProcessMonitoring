@@ -1,0 +1,6 @@
+# Simple CPU Spike Tool Requirements# Requirements for Azure Monitor Process Monitoring Demo
+
+setproctitle>=1.2.0setproctitle>=1.2.0
+
+# Python 3.8+ with standard library only
+# No other external dependencies required
